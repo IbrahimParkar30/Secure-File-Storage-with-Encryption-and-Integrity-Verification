@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Contracts | SecureVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+        body { background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+        .card-dark {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+        }
+
+        /* Contract card */
+        .contract-card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            transition: border-color .2s;
+        }
+        .contract-card:hover { border-color: #334155; }
+        .contract-card.enabled  { border-left: 3px solid #22c55e; }
+        .contract-card.disabled { border-left: 3px solid #475569; opacity: .7; }
+
+        /* Contract type icon colours */
+        .icon-expiry    { background:#431407; color:#fb923c; }
+        .icon-size      { background:#1e3a5f; color:#60a5fa; }
+        .icon-type      { background:#3b1f5e; color:#c084fc; }
+        .icon-quota     { background:#064e3b; color:#34d399; }
+        .icon-integrity { background:#7f1d1d; color:#f87171; }
+
+        .contract-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        .toggle-btn-on  { background:#14532d; border:1px solid #16a34a; color:#86efac; }
+        .toggle-btn-off { background:#1e293b; border:1px solid #475569; color:#94a3b8; }
+        .toggle-btn-on:hover  { background:#166534; color:#bbf7d0; }
+        .toggle-btn-off:hover { background:#334155; color:#e2e8f0; }
+
+        /* Log table */
+        .log-pass { color:#86efac; }
+        .log-fail { color:#f87171; }
+        .log-skip { color:#94a3b8; }
+
+        .badge-allow  { background:#064e3b; color:#6ee7b7; }
+        .badge-block  { background:#7f1d1d; color:#fca5a5; }
+        .badge-skip   { background:#1e293b; color:#94a3b8; }
+    </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-dark" style="background:#0f1117; border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-shield-lock-fill me-2" style="color:#38bdf8;"></i>Secure<span style="color:#38bdf8;">Vault</span>
+        </a>
+        <div class="d-flex gap-3 flex-wrap">
+            <a class="nav-link text-secondary" href="/"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="nav-link text-secondary" href="/download"><i class="bi bi-download me-1"></i>Download</a>
+            <a class="nav-link text-secondary" href="/verify"><i class="bi bi-patch-check me-1"></i>Verify</a>
+            <a class="nav-link text-secondary" href="/chain"><i class="bi bi-link-45deg me-1"></i>Blockchain</a>
+            <a class="nav-link" style="color:#a78bfa;" href="/contracts"><i class="bi bi-file-code me-1"></i>Contracts</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Flash Messages ──────────────────────────────────────────────────── -->
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for cat, msg in messages %}
+                <div class="alert alert-{{ cat }} alert-dismissible fade show">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">
+            <i class="bi bi-file-code me-2" style="color:#a78bfa;"></i>Smart Contracts
+        </h3>
+        <p class="text-secondary">
+            Self-executing rules that automatically enforce policies on every upload and download.
+            Toggle contracts on/off without touching the code.
+        </p>
+    </div>
+
+    <!-- What are smart contracts? -->
+    <div class="card-dark p-4 mb-4" style="border-left:3px solid #a78bfa;">
+        <h6 class="fw-semibold mb-2" style="color:#a78bfa;">
+            <i class="bi bi-info-circle me-2"></i>What are Smart Contracts?
+        </h6>
+        <p class="text-secondary small mb-0">
+            Smart contracts are <strong>self-executing programs</strong> stored on a blockchain that run automatically
+            when predefined conditions are met — no middleman needed. In this project, contracts enforce
+            security rules (file size, type, expiry, integrity) automatically on every upload and download,
+            just like Ethereum smart contracts enforce financial rules on transactions.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ── Contract Cards ────────────────────────────────────────────── -->
+        <div class="col-lg-7">
+            <h5 class="fw-semibold mb-3 text-secondary text-uppercase" style="font-size:.78rem;letter-spacing:1px;">
+                Active Contracts ({{ contracts | length }})
+            </h5>
+
+            {% for contract in contracts %}
+            {% set enabled = contract.enabled %}
+            {% set ctype   = contract.type %}
+
+            <div class="contract-card p-3 mb-3 {{ 'enabled' if enabled else 'disabled' }}">
+                <div class="d-flex align-items-start gap-3">
+
+                    <!-- Icon -->
+                    <div class="contract-icon
+                        {% if 'Expiry'     in ctype %}icon-expiry
+                        {% elif 'Size'     in ctype %}icon-size
+                        {% elif 'Type'     in ctype %}icon-type
+                        {% elif 'Uploads'  in ctype %}icon-quota
+                        {% elif 'Integrity'in ctype %}icon-integrity
+                        {% endif %}">
+                        <i class="bi
+                            {% if 'Expiry'     in ctype %}bi-clock-history
+                            {% elif 'Size'     in ctype %}bi-hdd
+                            {% elif 'Type'     in ctype %}bi-file-earmark-check
+                            {% elif 'Uploads'  in ctype %}bi-box-seam
+                            {% elif 'Integrity'in ctype %}bi-shield-check
+                            {% endif %}"></i>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                            <strong style="font-size:.9rem;">{{ contract.name }}</strong>
+                            {% if enabled %}
+                                <span class="badge rounded-pill px-2" style="background:#064e3b;color:#6ee7b7;font-size:.7rem;">
+                                    ● ACTIVE
+                                </span>
+                            {% else %}
+                                <span class="badge rounded-pill px-2" style="background:#1e293b;color:#64748b;font-size:.7rem;">
+                                    ○ INACTIVE
+                                </span>
+                            {% endif %}
+
+                            <!-- Trigger label -->
+                            <span class="badge rounded-pill px-2" style="background:#1e3a5f;color:#93c5fd;font-size:.68rem;">
+                                {% if 'Integrity' in ctype or 'Expiry' in ctype %}
+                                    DOWNLOAD
+                                {% else %}
+                                    UPLOAD
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <p class="text-secondary small mb-2">{{ contract.description }}</p>
+
+                        <!-- Extra params -->
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if contract.max_mb is defined %}
+                                <span class="badge" style="background:#1e293b;color:#94a3b8;">
+                                    Limit: {{ contract.max_mb }} MB
+                                </span>
+                            {% endif %}
+                            {% if contract.max_days is defined %}
+                                <span class="badge" style="background:#1e293b;color:#94a3b8;">
+                                    Expiry: {{ contract.max_days }} days
+                                </span>
+                            {% endif %}
+                            {% if contract.max_files is defined %}
+                                <span class="badge" style="background:#1e293b;color:#94a3b8;">
+                                    Quota: {{ contract.max_files }} files
+                                </span>
+                            {% endif %}
+                            {% if contract.allowed_types is defined %}
+                                {% for t in contract.allowed_types %}
+                                    <span class="badge" style="background:#1e293b;color:#94a3b8;">.{{ t }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Toggle button -->
+                    <form action="/contracts/toggle" method="POST" class="flex-shrink-0">
+                        <input type="hidden" name="name" value="{{ contract.name }}" />
+                        <button type="submit"
+                                class="btn btn-sm {{ 'toggle-btn-on' if enabled else 'toggle-btn-off' }}"
+                                style="border-radius:20px; font-size:.75rem; padding:4px 14px;">
+                            {% if enabled %}
+                                <i class="bi bi-toggle-on me-1"></i>ON
+                            {% else %}
+                                <i class="bi bi-toggle-off me-1"></i>OFF
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ── How Each Contract Works ───────────────────────────────────── -->
+        <div class="col-lg-5">
+            <h5 class="fw-semibold mb-3 text-secondary text-uppercase" style="font-size:.78rem;letter-spacing:1px;">
+                Execution Flow
+            </h5>
+            <div class="card-dark p-4">
+                <div class="d-flex gap-3 mb-3 align-items-start">
+                    <span class="badge rounded-circle p-2" style="background:#1e3a5f;color:#60a5fa;min-width:28px;">1</span>
+                    <div>
+                        <p class="fw-semibold mb-0 small">File Selected for Upload</p>
+                        <p class="text-secondary" style="font-size:.78rem;">User picks a file and clicks Encrypt & Upload</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mb-3 align-items-start">
+                    <span class="badge rounded-circle p-2" style="background:#3b1f5e;color:#c084fc;min-width:28px;">2</span>
+                    <div>
+                        <p class="fw-semibold mb-0 small">Upload Contracts Fire</p>
+                        <p class="text-secondary" style="font-size:.78rem;">SizeLimit → TypeRestriction → MaxUploads run in order. Any failure = rejected.</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mb-3 align-items-start">
+                    <span class="badge rounded-circle p-2" style="background:#064e3b;color:#34d399;min-width:28px;">3</span>
+                    <div>
+                        <p class="fw-semibold mb-0 small">AES-256 Encrypt + Blockchain</p>
+                        <p class="text-secondary" style="font-size:.78rem;">File encrypted, hash stored on blockchain</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mb-3 align-items-start">
+                    <span class="badge rounded-circle p-2" style="background:#431407;color:#fb923c;min-width:28px;">4</span>
+                    <div>
+                        <p class="fw-semibold mb-0 small">Download Requested</p>
+                        <p class="text-secondary" style="font-size:.78rem;">User selects a file to download</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 align-items-start">
+                    <span class="badge rounded-circle p-2" style="background:#7f1d1d;color:#f87171;min-width:28px;">5</span>
+                    <div>
+                        <p class="fw-semibold mb-0 small">Download Contracts Fire</p>
+                        <p class="text-secondary" style="font-size:.78rem;">IntegrityContract → FileExpiryContract. All must pass for decryption to proceed.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real vs Ours comparison -->
+            <div class="card-dark p-4 mt-3">
+                <h6 class="fw-semibold mb-3 small text-secondary text-uppercase" style="letter-spacing:.5px;">
+                    Real vs Our Smart Contracts
+                </h6>
+                <table class="table table-dark table-sm mb-0" style="font-size:.78rem;">
+                    <thead><tr>
+                        <th style="color:#64748b;">Feature</th>
+                        <th style="color:#64748b;">Ethereum</th>
+                        <th style="color:#64748b;">Ours</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr><td>Language</td><td>Solidity</td><td>Python</td></tr>
+                        <tr><td>Storage</td><td>On-chain</td><td>contracts.json</td></tr>
+                        <tr><td>Auto-execute</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Immutable</td><td>✅</td><td>❌ (toggleable)</td></tr>
+                        <tr><td>Decentralized</td><td>✅</td><td>❌ Local only</td></tr>
+                        <tr><td>Gas fees</td><td>✅</td><td>❌ Free</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Execution Log ─────────────────────────────────────────────────── -->
+    <div class="mt-5">
+        <h5 class="fw-semibold mb-3">
+            <i class="bi bi-journal-text me-2 text-secondary"></i>Contract Execution Log
+            <span class="badge ms-2" style="background:#1e293b;color:#94a3b8;font-size:.75rem;">
+                {{ log | length }} entries
+            </span>
+        </h5>
+
+        {% if log %}
+        <div class="card-dark p-0" style="overflow:hidden;">
+            <table class="table table-dark mb-0" style="font-size:.82rem;">
+                <thead style="background:#0f172a;">
+                    <tr>
+                        <th class="px-4 py-3" style="color:#64748b;">Time</th>
+                        <th style="color:#64748b;">Contract</th>
+                        <th style="color:#64748b;">File</th>
+                        <th style="color:#64748b;">Result</th>
+                        <th style="color:#64748b;">Action</th>
+                        <th style="color:#64748b;">Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in log %}
+                    <tr>
+                        <td class="px-4 text-secondary" style="white-space:nowrap;">{{ entry.timestamp }}</td>
+                        <td><code style="font-size:.75rem;">{{ entry.contract }}</code></td>
+                        <td>{{ entry.file }}</td>
+                        <td>
+                            {% if entry.action == 'SKIPPED' %}
+                                <span class="log-skip">― SKIP</span>
+                            {% elif entry.passed %}
+                                <span class="log-pass">✅ PASS</span>
+                            {% else %}
+                                <span class="log-fail">❌ FAIL</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if entry.action == 'ALLOW'   %}badge-allow
+                                {% elif entry.action == 'SKIPPED'%}badge-skip
+                                {% else                          %}badge-block{% endif %}
+                                px-2 rounded-pill" style="font-size:.7rem;">
+                                {{ entry.action }}
+                            </span>
+                        </td>
+                        <td class="text-secondary" style="font-size:.75rem; max-width:300px;">
+                            {{ entry.message }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-dark p-5 text-center">
+            <i class="bi bi-journal display-4 text-secondary d-block mb-3"></i>
+            <p class="text-secondary">No contract executions yet. Upload or download a file to see the log.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

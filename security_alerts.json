@@ -1,0 +1,319 @@
+[
+    {
+        "id": 1,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:12:50",
+        "description": "Download attempted for 'COD_Bug_Report.zip' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "COD_Bug_Report.zip",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 2,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:12:56",
+        "description": "Download attempted for 'sbhdga' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "sbhdga",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 3,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:21",
+        "description": "Download attempted for 'cd.pdf' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "cd.pdf",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 4,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:24",
+        "description": "Download attempted for 'BDA_assignment.pdf' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "BDA_assignment.pdf",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 5,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:27",
+        "description": "Download attempted for 'cd.pdf' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "cd.pdf",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 6,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:30",
+        "description": "Download attempted for 'Bonafide_letter.docx' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "Bonafide_letter.docx",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 7,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:34",
+        "description": "Download attempted for 'COD_Bug_Report.zip' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "COD_Bug_Report.zip",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 8,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:36",
+        "description": "Download attempted for 'Ibrahim_Parkar_CV.pdf' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "Ibrahim_Parkar_CV.pdf",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 9,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:13:38",
+        "description": "Download attempted for 'sbhdga' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "sbhdga",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 10,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:18:32",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 11,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:18:45",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 12,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:29:07",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 13,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:31:37",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 14,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:31:46",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 15,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:34:59",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 16,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:48:03",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 17,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-23 16:55:53",
+        "description": "Download attempted for 'hfsahgfd' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "hfsahgfd",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 18,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-24 23:02:36",
+        "description": "Download attempted for 'AI2.pdf' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "AI2.pdf",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 19,
+        "alert_type": "UNKNOWN_FILE_ACCESS",
+        "severity": "HIGH",
+        "timestamp": "2026-02-24 23:32:45",
+        "description": "Download attempted for 'AI2.pdf' which has no blockchain record. Possible unauthorized file injection.",
+        "details": {
+            "requested_file": "AI2.pdf",
+            "blockchain_record": "NOT FOUND"
+        },
+        "resolved": false,
+        "resolution": "Download blocked. No blockchain record exists.",
+        "color": "danger"
+    },
+    {
+        "id": 20,
+        "alert_type": "SCAN_UNKNOWN_FILE",
+        "severity": "MEDIUM",
+        "timestamp": "2026-02-25 12:24:41",
+        "description": "Full scan found unregistered file: 'bb'",
+        "details": {
+            "filename": "bb",
+            "physical_file": "bb.enc",
+            "computed_hash": "f6e8495875c619ff65feff90eca01c3b0d20cff902952fbe7ff4fba46c6108a2",
+            "stored_hash": "N/A \u2014 No blockchain record",
+            "status": "UNKNOWN"
+        },
+        "resolved": false,
+        "resolution": "",
+        "color": "warning"
+    },
+    {
+        "id": 21,
+        "alert_type": "SCAN_UNKNOWN_FILE",
+        "severity": "MEDIUM",
+        "timestamp": "2026-02-25 12:24:56",
+        "description": "Full scan found unregistered file: 'bb'",
+        "details": {
+            "filename": "bb",
+            "physical_file": "bb.enc",
+            "computed_hash": "f6e8495875c619ff65feff90eca01c3b0d20cff902952fbe7ff4fba46c6108a2",
+            "stored_hash": "N/A \u2014 No blockchain record",
+            "status": "UNKNOWN"
+        },
+        "resolved": false,
+        "resolution": "",
+        "color": "warning"
+    },
+    {
+        "id": 22,
+        "alert_type": "SCAN_UNKNOWN_FILE",
+        "severity": "MEDIUM",
+        "timestamp": "2026-02-25 12:25:37",
+        "description": "Full scan found unregistered file: 'bb'",
+        "details": {
+            "filename": "bb",
+            "physical_file": "bb.enc",
+            "computed_hash": "09c62cb5cb21b78eb9a54aaecfc53c6fcfdb60281c30ed9549177eaba38f40ad",
+            "stored_hash": "N/A \u2014 No blockchain record",
+            "status": "UNKNOWN"
+        },
+        "resolved": false,
+        "resolution": "",
+        "color": "warning"
+    }
+]

@@ -1,0 +1,8 @@
+ganache
+
+venv\Scripts\activate
+python deploy.py
+
+
+venv\Scripts\activate
+python app.py

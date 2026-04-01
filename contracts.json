@@ -1,0 +1,37 @@
+[
+    {
+        "name": "FileSizeLimitContract",
+        "description": "Reject uploads larger than 10 MB.",
+        "enabled": true,
+        "type": "FileSizeLimitContract",
+        "max_bytes": 10485760,
+        "max_mb": 10
+    },
+    {
+        "name": "FileTypeRestrictionContract",
+        "description": "Only allow file types: csv, docx, jpeg, jpg, pdf, png, txt, xlsx.",
+        "enabled": true,
+        "type": "FileTypeRestrictionContract",
+        "allowed_types": ["csv", "docx", "jpeg", "jpg", "pdf", "png", "txt", "xlsx"]
+    },
+    {
+        "name": "MaxUploadsContract",
+        "description": "Limit total stored files to 20.",
+        "enabled": true,
+        "type": "MaxUploadsContract",
+        "max_files": 20
+    },
+    {
+        "name": "FileExpiryContract",
+        "description": "Block download of files older than 30 days.",
+        "enabled": true,
+        "type": "FileExpiryContract",
+        "max_days": 30
+    },
+    {
+        "name": "IntegrityContract",
+        "description": "Auto-verify SHA-256 hash against blockchain on every download.",
+        "enabled": true,
+        "type": "IntegrityContract"
+    }
+]

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Security Alerts | SecureVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+    <style>
+        body { background:#0f1117; color:#e2e8f0; min-height:100vh; }
+        .card-dark { background:#1e293b; border:1px solid #334155; border-radius:14px; }
+
+        /* Severity colours */
+        .sev-critical { border-left:4px solid #dc2626; background:#1a0a0a; }
+        .sev-high     { border-left:4px solid #f97316; background:#1a0f0a; }
+        .sev-medium   { border-left:4px solid #eab308; background:#1a180a; }
+        .sev-low      { border-left:4px solid #64748b; background:#111827; }
+
+        .badge-critical { background:#7f1d1d; color:#fca5a5; }
+        .badge-high     { background:#431407; color:#fb923c; }
+        .badge-medium   { background:#713f12; color:#fde68a; }
+        .badge-low      { background:#1e293b; color:#94a3b8; }
+
+        .stat-card {
+            background:#0f172a;
+            border-radius:12px;
+            padding:1.25rem;
+            text-align:center;
+        }
+        .stat-num { font-size:2rem; font-weight:700; }
+
+        .scan-ok      { color:#22c55e; }
+        .scan-tamper  { color:#ef4444; }
+        .scan-unknown { color:#eab308; }
+
+        .hash-mini {
+            font-family:monospace; font-size:.7rem;
+            color:#93c5fd; word-break:break-all;
+        }
+
+        .alert-row { border-radius:10px; padding:1rem 1.25rem; margin-bottom:.75rem; }
+        .resolved-badge { background:#064e3b; color:#6ee7b7; font-size:.7rem; }
+        .unresolved-badge { background:#7f1d1d; color:#fca5a5; font-size:.7rem; }
+        .pulse { animation:pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark" style="background:#0f1117;border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-shield-lock-fill me-2" style="color:#38bdf8;"></i>Secure<span style="color:#38bdf8;">Vault</span>
+        </a>
+        <div class="d-flex gap-3 flex-wrap">
+            <a class="nav-link text-secondary" href="/"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="nav-link text-secondary" href="/download"><i class="bi bi-download me-1"></i>Download</a>
+            <a class="nav-link text-secondary" href="/chain"><i class="bi bi-link-45deg me-1"></i>Blockchain</a>
+            <a class="nav-link text-secondary" href="/contracts"><i class="bi bi-file-code me-1"></i>Contracts</a>
+            <a class="nav-link" style="color:#f87171;" href="/alerts">
+                <i class="bi bi-shield-exclamation me-1"></i>Alerts
+                {% if alerts | selectattr("resolved","equalto",false) | list | length > 0 %}
+                    <span class="badge rounded-pill bg-danger ms-1" style="font-size:.65rem;">
+                        {{ alerts | selectattr("resolved","equalto",false) | list | length }}
+                    </span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Flash messages -->
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for cat, msg in messages %}
+            <div class="alert alert-{{ cat }} alert-dismissible fade show">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-shield-exclamation me-2" style="color:#f87171;"></i>Security Alerts
+            </h3>
+            <p class="text-secondary mb-0">
+                Real-time log of all detected security events — rename attacks, tampered files, unknown files.
+            </p>
+        </div>
+        <a href="/alerts/scan" class="btn btn-outline-warning">
+            <i class="bi bi-search me-2"></i>Run Full Integrity Scan
+        </a>
+    </div>
+
+    <!-- Severity counters -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num text-danger">{{ severity_count.CRITICAL }}</div>
+                <div class="text-secondary small">Critical</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num text-warning">{{ severity_count.HIGH }}</div>
+                <div class="text-secondary small">High</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#fde68a;">{{ severity_count.MEDIUM }}</div>
+                <div class="text-secondary small">Medium</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num text-secondary">{{ severity_count.LOW }}</div>
+                <div class="text-secondary small">Low</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Alert Feed -->
+        <div class="col-lg-8">
+            <h5 class="fw-semibold mb-3">
+                <i class="bi bi-bell me-2"></i>Alert Feed
+                <span class="badge ms-2" style="background:#1e293b;color:#94a3b8;font-size:.72rem;">
+                    {{ alerts | length }} total
+                </span>
+            </h5>
+
+            {% if alerts %}
+                {% for alert in alerts %}
+                <div class="alert-row
+                    {% if alert.severity == 'CRITICAL' %}sev-critical
+                    {% elif alert.severity == 'HIGH'    %}sev-high
+                    {% elif alert.severity == 'MEDIUM'  %}sev-medium
+                    {% else                             %}sev-low{% endif %}">
+
+                    <!-- Alert header -->
+                    <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap mb-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <!-- Severity badge -->
+                            <span class="badge px-2 py-1
+                                {% if alert.severity == 'CRITICAL' %}badge-critical
+                                {% elif alert.severity == 'HIGH'   %}badge-high
+                                {% elif alert.severity == 'MEDIUM' %}badge-medium
+                                {% else                            %}badge-low{% endif %}">
+                                {% if alert.severity == 'CRITICAL' %}<span class="pulse me-1">●</span>{% endif %}
+                                {{ alert.severity }}
+                            </span>
+
+                            <code style="color:#a78bfa;font-size:.78rem;">{{ alert.alert_type }}</code>
+
+                            <!-- Resolved / Unresolved -->
+                            {% if alert.resolved %}
+                                <span class="badge resolved-badge rounded-pill px-2">✅ AUTO-HEALED</span>
+                            {% else %}
+                                <span class="badge unresolved-badge rounded-pill px-2">⚠️ UNRESOLVED</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-secondary">{{ alert.timestamp }}</small>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="mb-2" style="font-size:.88rem;">{{ alert.description }}</p>
+
+                    <!-- Technical details -->
+                    {% if alert.details %}
+                    <div style="background:#0a0f1a;border-radius:8px;padding:10px 14px;margin-bottom:8px;">
+                        {% for key, val in alert.details.items() %}
+                        <div class="d-flex gap-2" style="font-size:.75rem;margin-bottom:3px;">
+                            <span class="text-secondary" style="min-width:140px;flex-shrink:0;">{{ key }}:</span>
+                            <span class="hash-mini">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Resolution -->
+                    {% if alert.resolution %}
+                    <p class="mb-0" style="font-size:.78rem;color:{% if alert.resolved %}#6ee7b7{% else %}#fca5a5{% endif %};">
+                        <i class="bi bi-arrow-right-circle me-1"></i>{{ alert.resolution }}
+                    </p>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="card-dark p-5 text-center">
+                <i class="bi bi-shield-check display-4 text-success d-block mb-3"></i>
+                <h5 class="text-secondary">No security alerts yet.</h5>
+                <p class="text-secondary small">All file operations have been clean.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Integrity Scan Results -->
+        <div class="col-lg-4">
+            <h5 class="fw-semibold mb-3">
+                <i class="bi bi-search me-2"></i>Last Scan Results
+            </h5>
+
+            {% if scan_results %}
+            <div class="card-dark p-0" style="overflow:hidden;">
+                <table class="table table-dark table-sm mb-0" style="font-size:.78rem;">
+                    <thead style="background:#0f172a;">
+                        <tr>
+                            <th class="px-3 py-2" style="color:#64748b;">File</th>
+                            <th style="color:#64748b;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in scan_results %}
+                        <tr>
+                            <td class="px-3"><code>{{ r.filename }}</code></td>
+                            <td>
+                                {% if r.status == "OK" %}
+                                    <span class="scan-ok">✅ OK</span>
+                                {% elif r.status == "TAMPERED" %}
+                                    <span class="scan-tamper pulse">🔴 TAMPERED</span>
+                                {% else %}
+                                    <span class="scan-unknown">⚠️ UNKNOWN</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-dark p-4 text-center">
+                <i class="bi bi-folder2-open display-4 text-secondary d-block mb-2"></i>
+                <p class="text-secondary small mb-3">No files scanned yet.</p>
+                <a href="/alerts/scan" class="btn btn-outline-warning btn-sm">
+                    <i class="bi bi-search me-1"></i>Run Scan Now
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- How Auto-Heal Works -->
+            <div class="card-dark p-4 mt-3">
+                <h6 class="fw-semibold mb-3 small" style="color:#a78bfa;">
+                    <i class="bi bi-magic me-2"></i>How Auto-Heal Works
+                </h6>
+                <div style="font-size:.78rem;" class="text-secondary">
+                    <div class="d-flex gap-2 mb-2">
+                        <span style="color:#f87171;flex-shrink:0;">1.</span>
+                        <span>Filename changed detected — expected .enc file missing</span>
+                    </div>
+                    <div class="d-flex gap-2 mb-2">
+                        <span style="color:#fb923c;flex-shrink:0;">2.</span>
+                        <span>System scans ALL .enc files by computing SHA-256</span>
+                    </div>
+                    <div class="d-flex gap-2 mb-2">
+                        <span style="color:#fde68a;flex-shrink:0;">3.</span>
+                        <span>Finds the file whose hash matches the blockchain record</span>
+                    </div>
+                    <div class="d-flex gap-2 mb-2">
+                        <span style="color:#86efac;flex-shrink:0;">4.</span>
+                        <span>Renames it back to the correct name silently</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span style="color:#6ee7b7;flex-shrink:0;">5.</span>
+                        <span>Alert logged → file served safely → content unchanged</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert types reference -->
+            <div class="card-dark p-4 mt-3">
+                <h6 class="fw-semibold mb-3 small text-secondary">Alert Types</h6>
+                <table class="table table-dark table-sm mb-0" style="font-size:.72rem;">
+                    <tbody>
+                        <tr>
+                            <td><code style="color:#f87171;">FILENAME_TAMPERED</code></td>
+                            <td class="text-secondary">File renamed on disk</td>
+                        </tr>
+                        <tr>
+                            <td><code style="color:#f87171;">FILE_CONTENT_TAMPERED</code></td>
+                            <td class="text-secondary">File content modified</td>
+                        </tr>
+                        <tr>
+                            <td><code style="color:#fb923c;">UNKNOWN_FILE_ACCESS</code></td>
+                            <td class="text-secondary">No blockchain record</td>
+                        </tr>
+                        <tr>
+                            <td><code style="color:#f87171;">FILE_MISSING</code></td>
+                            <td class="text-secondary">File deleted from disk</td>
+                        </tr>
+                        <tr>
+                            <td><code style="color:#eab308;">SCAN_UNKNOWN_FILE</code></td>
+                            <td class="text-secondary">Unregistered file found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

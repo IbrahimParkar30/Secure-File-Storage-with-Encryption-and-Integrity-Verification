@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure File Storage | AES + Blockchain</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+        body { background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+        .navbar-brand span { color: #38bdf8; }
+
+        .hero-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f1e35 100%);
+            border: 1px solid #1e40af;
+            border-radius: 16px;
+        }
+
+        .feature-icon {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: border-color 0.25s, background 0.25s;
+            cursor: pointer;
+            background: #1e293b;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #38bdf8;
+            background: #0f2540;
+        }
+
+        .upload-zone input[type="file"] { display: none; }
+
+        .btn-primary-custom {
+            background: linear-gradient(90deg, #1d4ed8, #0ea5e9);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+
+        .btn-primary-custom:hover { opacity: .88; }
+
+        .badge-enc  { background: #064e3b; color: #6ee7b7; }
+        .badge-hash { background: #1e3a5f; color: #93c5fd; }
+        .badge-chain{ background: #3b1f5e; color: #d8b4fe; }
+
+        footer { border-top: 1px solid #1e293b; }
+    </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background:#0f1117; border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-shield-lock-fill me-2" style="color:#38bdf8;"></i>Secure<span>Vault</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto gap-2">
+                <li class="nav-item"><a class="nav-link active" href="/"><i class="bi bi-house me-1"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/download"><i class="bi bi-download me-1"></i>Download</a></li>
+                <li class="nav-item"><a class="nav-link" href="/verify"><i class="bi bi-patch-check me-1"></i>Verify</a></li>
+                <li class="nav-item"><a class="nav-link" href="/chain"><i class="bi bi-link-45deg me-1"></i>Blockchain</a></li>
+                <li class="nav-item"><a class="nav-link" href="/ethereum" style="color:#f59e0b;"><i class="bi bi-currency-exchange me-1"></i>Ethereum</a></li>
+                <li class="nav-item"><a class="nav-link" href="/alerts" style="color:#f87171;"><i class="bi bi-shield-exclamation me-1"></i>Alerts</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Flash Messages ──────────────────────────────────────────────────── -->
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for cat, msg in messages %}
+                <div class="alert alert-{{ cat }} alert-dismissible fade show" role="alert">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- ── Hero Section ────────────────────────────────────────────────────── -->
+<div class="container py-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                Secure File Storage
+                <span style="color:#38bdf8;">AES-256 + Blockchain</span>
+            </h1>
+            <p class="lead text-secondary">
+                Upload files with military-grade encryption. Every file is registered on a
+                real <strong style="color:#f59e0b;">Ethereum smart contract</strong> —
+                any tampering is detected instantly on download.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature badges -->
+    <div class="row g-3 justify-content-center mb-5">
+        <div class="col-auto">
+            <span class="badge badge-enc px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-lock-fill me-1"></i>AES-256 Encryption
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge badge-hash px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-fingerprint me-1"></i>SHA-256 Hashing
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge badge-chain px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-currency-exchange me-1"></i>Ethereum Blockchain
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge px-3 py-2 rounded-pill fs-6" style="background:#431407;color:#fb923c;">
+                <i class="bi bi-file-code me-1"></i>Solidity Smart Contracts
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-secondary px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-patch-check me-1"></i>Tamper Detection
+            </span>
+        </div>
+    </div>
+
+    <!-- ── Upload Card ──────────────────────────────────────────────────── -->
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="hero-card p-4 p-md-5">
+                <h4 class="fw-semibold mb-1"><i class="bi bi-cloud-upload me-2" style="color:#38bdf8;"></i>Upload a File</h4>
+                <p class="text-secondary small mb-4">Your file will be encrypted before it touches the disk.</p>
+
+                <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <!-- Drop zone -->
+                    <div class="upload-zone mb-3" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" name="file" id="fileInput" required />
+                        <i class="bi bi-cloud-arrow-up-fill display-4 text-secondary mb-2 d-block"></i>
+                        <p class="mb-1 fw-semibold" id="dropLabel">Drag & drop or click to select</p>
+                        <p class="text-secondary small mb-0">
+                            txt · pdf · png · jpg · docx · xlsx · csv · zip · mp3 · mp4
+                        </p>
+                    </div>
+
+                    <!-- Progress (hidden until upload starts) -->
+                    <div class="progress mb-3" style="height:6px; display:none;" id="progressWrap">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                             id="progressBar" style="width:0%"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom text-white w-100 py-2" id="uploadBtn">
+                        <i class="bi bi-shield-plus me-2"></i>Encrypt &amp; Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── How It Works ──────────────────────────────────────────────── -->
+        <div class="col-lg-5 ms-lg-4 mt-4 mt-lg-0">
+            <h5 class="fw-semibold mb-3 text-secondary text-uppercase" style="font-size:.8rem;letter-spacing:1px;">
+                How It Works
+            </h5>
+            <div class="d-flex gap-3 mb-3">
+                <div class="feature-icon bg-primary bg-opacity-10 text-info flex-shrink-0">
+                    <i class="bi bi-upload"></i>
+                </div>
+                <div>
+                    <p class="fw-semibold mb-0">1. Upload</p>
+                    <p class="text-secondary small mb-0">Send any supported file through the form above.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-3 mb-3">
+                <div class="feature-icon bg-success bg-opacity-10 text-success flex-shrink-0">
+                    <i class="bi bi-lock"></i>
+                </div>
+                <div>
+                    <p class="fw-semibold mb-0">2. AES-256 Encryption</p>
+                    <p class="text-secondary small mb-0">File is encrypted with a server-side AES-256 key before saving.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-3 mb-3">
+                <div class="feature-icon bg-warning bg-opacity-10 text-warning flex-shrink-0">
+                    <i class="bi bi-currency-exchange"></i>
+                </div>
+                <div>
+                    <p class="fw-semibold mb-0">3. Ethereum Smart Contract</p>
+                    <p class="text-secondary small mb-0">SHA-256 hash is registered on Ganache Ethereum via Solidity <code>registerFile()</code>.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-3 mb-3">
+                <div class="feature-icon bg-danger bg-opacity-10 text-danger flex-shrink-0">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <p class="fw-semibold mb-0">4. Verified Download</p>
+                    <p class="text-secondary small mb-0">Solidity <code>verifyIntegrity()</code> compares hashes on-chain — tampering blocked.</p>
+                </div>
+            </div>
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <a href="/ethereum" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-currency-exchange me-1"></i>Ethereum Status
+                </a>
+                <a href="/chain" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-link-45deg me-1"></i>View Chain
+                </a>
+                <a href="/alerts" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-shield-exclamation me-1"></i>Alerts
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
+<footer class="mt-5 py-4 text-center text-secondary small">
+    SecureVault &mdash; AES-256 + Ethereum Blockchain + Solidity Smart Contracts &mdash; College Security Project
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const dropZone  = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const dropLabel = document.getElementById("dropLabel");
+    const form      = document.getElementById("uploadForm");
+    const btn       = document.getElementById("uploadBtn");
+    const progWrap  = document.getElementById("progressWrap");
+    const progBar   = document.getElementById("progressBar");
+
+    // Update label when file selected via click
+    fileInput.addEventListener("change", () => {
+        if (fileInput.files.length)
+            dropLabel.textContent = fileInput.files[0].name;
+    });
+
+    // Drag-and-drop support
+    ["dragenter","dragover"].forEach(evt =>
+        dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add("dragover"); })
+    );
+    ["dragleave","drop"].forEach(evt =>
+        dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove("dragover"); })
+    );
+    dropZone.addEventListener("drop", e => {
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fileInput.files = files;
+            dropLabel.textContent = files[0].name;
+        }
+    });
+
+    // Fake progress bar on submit (gives visual feedback)
+    form.addEventListener("submit", () => {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Encrypting…';
+        progWrap.style.display = "block";
+        let w = 0;
+        const iv = setInterval(() => {
+            w = Math.min(w + Math.random() * 18, 90);
+            progBar.style.width = w + "%";
+            if (w >= 90) clearInterval(iv);
+        }, 200);
+    });
+</script>
+</body>
+</html>

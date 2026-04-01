@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Ethereum Status | SecureVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+    <style>
+        body { background:#0f1117; color:#e2e8f0; min-height:100vh; }
+        .card-dark { background:#1e293b; border:1px solid #334155; border-radius:14px; }
+        .stat-card { background:#0f172a; border-radius:12px; padding:1.25rem; text-align:center; border:1px solid #1e293b; }
+        .stat-num  { font-size:1.8rem; font-weight:700; }
+        .hash-pill { background:#0f172a; border:1px solid #1e40af; border-radius:6px; font-family:monospace; font-size:.72rem; word-break:break-all; padding:6px 10px; color:#93c5fd; }
+        .event-row { background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:.85rem 1rem; margin-bottom:.6rem; font-size:.82rem; }
+        .ev-register { border-left:3px solid #22c55e; }
+        .ev-verify   { border-left:3px solid #38bdf8; }
+        .ev-tamper   { border-left:3px solid #ef4444; }
+        .ev-revoke   { border-left:3px solid #f97316; }
+        .online  { color:#22c55e; }
+        .offline { color:#ef4444; }
+        .pulse { animation:pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark" style="background:#0f1117;border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-shield-lock-fill me-2" style="color:#38bdf8;"></i>Secure<span style="color:#38bdf8;">Vault</span>
+        </a>
+        <div class="d-flex gap-3 flex-wrap">
+            <a class="nav-link text-secondary" href="/"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="nav-link text-secondary" href="/chain"><i class="bi bi-link-45deg me-1"></i>Chain</a>
+            <a class="nav-link text-secondary" href="/alerts"><i class="bi bi-shield-exclamation me-1"></i>Alerts</a>
+            <a class="nav-link" style="color:#f59e0b;" href="/ethereum"><i class="bi bi-currency-exchange me-1"></i>Ethereum</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">
+            <i class="bi bi-currency-exchange me-2" style="color:#f59e0b;"></i>Ethereum Network Status
+        </h3>
+        <p class="text-secondary">Live connection to local Ganache blockchain and deployed smart contract.</p>
+    </div>
+
+    <!-- Connection Banner -->
+    {% if status.connected and status.contract_address %}
+    <div class="p-3 mb-4 rounded" style="background:#052e16;border:1px solid #16a34a;">
+        <span class="online fw-semibold pulse">●</span>
+        <span class="ms-2">Connected to Ganache — Smart Contract LIVE at
+            <code style="color:#86efac;">{{ status.contract_address }}</code>
+        </span>
+    </div>
+    {% else %}
+    <div class="p-3 mb-4 rounded" style="background:#450a0a;border:1px solid #dc2626;">
+        <span class="offline fw-semibold">●</span>
+        <span class="ms-2 text-danger">
+            Not connected. Start Ganache (<code>ganache</code>) then run <code>python deploy.py</code>
+        </span>
+    </div>
+    {% endif %}
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#22c55e;">
+                    {% if status.connected %}LIVE{% else %}OFF{% endif %}
+                </div>
+                <div class="text-secondary small">Network</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#38bdf8;">{{ status.total_files }}</div>
+                <div class="text-secondary small">Files on Chain</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#f59e0b;">{{ status.balance_eth or "–" }}</div>
+                <div class="text-secondary small">ETH Balance (test)</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#a78bfa;">{{ status.block_number or "–" }}</div>
+                <div class="text-secondary small">Current Block</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Contract Info -->
+        <div class="col-lg-5">
+            <h5 class="fw-semibold mb-3">
+                <i class="bi bi-file-code me-2" style="color:#a78bfa;"></i>Smart Contract Details
+            </h5>
+            <div class="card-dark p-4 mb-3">
+                <table class="table table-dark table-sm mb-0" style="font-size:.82rem;">
+                    <tbody>
+                        <tr>
+                            <th style="color:#64748b;width:40%;">Contract Address</th>
+                            <td><div class="hash-pill">{{ status.contract_address or "Not deployed" }}</div></td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">Owner Account</th>
+                            <td><div class="hash-pill">{{ status.account or "N/A" }}</div></td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">Network ID</th>
+                            <td><code>{{ status.network_id or "–" }}</code> (Ganache local)</td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">Files Stored</th>
+                            <td><strong>{{ status.total_files }} / {{ status.max_files }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">Max File Size</th>
+                            <td>{{ status.max_size_mb }} MB</td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">File Expiry</th>
+                            <td>{{ status.expiry_days }} days</td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">Solidity Version</th>
+                            <td><code>^0.8.20</code></td>
+                        </tr>
+                        <tr>
+                            <th style="color:#64748b;">Network</th>
+                            <td>Ganache (local, free)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Smart Contracts in Solidity -->
+            <div class="card-dark p-4">
+                <h6 class="fw-semibold mb-3 small" style="color:#a78bfa;">Solidity Smart Contracts</h6>
+                {% set contracts = [
+                    ("registerFile()", "Upload", "Enforces size, type, quota rules", "success"),
+                    ("verifyIntegrity()", "Download", "Checks SHA-256 hash on chain", "info"),
+                    ("revokeFile()", "Admin", "Permanently blocks file access", "warning"),
+                    ("isFileExpired()", "Download", "Checks 30-day expiry rule", "secondary"),
+                ] %}
+                {% for func, trigger, desc, color in contracts %}
+                <div class="d-flex gap-3 mb-3 align-items-start">
+                    <span class="badge bg-{{ color }} bg-opacity-20 text-{{ color }} rounded-pill px-2 py-1 flex-shrink-0" style="font-size:.7rem;">
+                        {{ trigger }}
+                    </span>
+                    <div>
+                        <code style="color:#e2e8f0;font-size:.78rem;">{{ func }}</code>
+                        <p class="text-secondary mb-0" style="font-size:.74rem;">{{ desc }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Blockchain Events -->
+        <div class="col-lg-7">
+            <h5 class="fw-semibold mb-3">
+                <i class="bi bi-broadcast me-2" style="color:#38bdf8;"></i>Blockchain Events
+                <span class="badge ms-2" style="background:#1e293b;color:#94a3b8;font-size:.72rem;">
+                    Permanently logged on Ethereum
+                </span>
+            </h5>
+
+            {% if events %}
+                {% for ev in events %}
+                <div class="event-row
+                    {% if ev.type == 'FileRegistered'    %}ev-register
+                    {% elif ev.type == 'IntegrityVerified'%}ev-verify
+                    {% elif ev.type == 'TamperDetected'  %}ev-tamper
+                    {% else                              %}ev-revoke{% endif %}">
+
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <span class="badge rounded-pill px-2 me-2
+                                {% if ev.type == 'FileRegistered'    %}bg-success bg-opacity-20 text-success
+                                {% elif ev.type == 'IntegrityVerified'%}bg-info bg-opacity-20 text-info
+                                {% elif ev.type == 'TamperDetected'  %}bg-danger bg-opacity-20 text-danger
+                                {% else                              %}bg-warning bg-opacity-20 text-warning{% endif %}"
+                                style="font-size:.68rem;">
+                                {% if ev.type == 'FileRegistered'     %}📤 REGISTERED
+                                {% elif ev.type == 'IntegrityVerified' %}
+                                    {% if ev.passed %}✅ VERIFIED{% else %}❌ FAILED{% endif %}
+                                {% elif ev.type == 'TamperDetected'   %}⚠️ TAMPERED
+                                {% else                               %}🔒 REVOKED{% endif %}
+                            </span>
+                            <strong style="font-size:.85rem;">{{ ev.file_name }}</strong>
+                        </div>
+                        <code class="text-secondary" style="font-size:.68rem;">Block #{{ ev.block_number }}</code>
+                    </div>
+
+                    <div class="mt-1">
+                        <span class="text-secondary" style="font-size:.72rem;">TX: </span>
+                        <code style="font-size:.7rem;color:#60a5fa;">{{ ev.tx_hash[:42] }}...</code>
+                    </div>
+
+                    {% if ev.type == 'TamperDetected' %}
+                    <div class="mt-1" style="font-size:.72rem;">
+                        <span class="text-danger">Stored:   </span>
+                        <code style="color:#fca5a5;font-size:.68rem;">{{ ev.stored_hash[:32] }}...</code><br/>
+                        <span class="text-danger">Computed: </span>
+                        <code style="color:#fca5a5;font-size:.68rem;">{{ ev.computed_hash[:32] }}...</code>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="card-dark p-5 text-center">
+                <i class="bi bi-broadcast display-4 text-secondary d-block mb-3"></i>
+                <p class="text-secondary">No blockchain events yet. Upload a file to generate transactions.</p>
+                <a href="/" class="btn btn-outline-info mt-2">
+                    <i class="bi bi-cloud-upload me-2"></i>Upload a File
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- How it compares to public Ethereum -->
+    <div class="card-dark p-4 mt-4">
+        <h6 class="fw-semibold mb-3">
+            <i class="bi bi-info-circle me-2 text-info"></i>
+            Ganache Local vs Public Ethereum
+        </h6>
+        <div class="row g-3" style="font-size:.82rem;">
+            <div class="col-md-6">
+                <table class="table table-dark table-sm mb-0">
+                    <thead><tr>
+                        <th style="color:#64748b;">Feature</th>
+                        <th style="color:#22c55e;">Ganache (Ours)</th>
+                        <th style="color:#f59e0b;">Public Ethereum</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr><td>Cost</td><td class="text-success">Free</td><td class="text-warning">Real ETH (gas)</td></tr>
+                        <tr><td>Speed</td><td class="text-success">Instant</td><td class="text-warning">15–30 sec</td></tr>
+                        <tr><td>Network</td><td class="text-success">Local PC</td><td class="text-warning">Global nodes</td></tr>
+                        <tr><td>Solidity</td><td class="text-success">✅ Same</td><td class="text-success">✅ Same</td></tr>
+                        <tr><td>Smart Contracts</td><td class="text-success">✅ Real</td><td class="text-success">✅ Real</td></tr>
+                        <tr><td>Decentralized</td><td class="text-danger">❌ Local only</td><td class="text-success">✅ Yes</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded" style="background:#0f172a;font-size:.78rem;">
+                    <p class="text-secondary mb-2"><strong class="text-info">What Ganache gives us:</strong></p>
+                    <p class="text-secondary mb-1">✅ Real Solidity smart contracts running locally</p>
+                    <p class="text-secondary mb-1">✅ Real Ethereum transactions with TX hashes</p>
+                    <p class="text-secondary mb-1">✅ Real blockchain events (FileRegistered, TamperDetected)</p>
+                    <p class="text-secondary mb-1">✅ Real Web3.py interaction</p>
+                    <p class="text-secondary mb-1">✅ 100% identical to Sepolia testnet behavior</p>
+                    <p class="text-secondary mb-0">✅ Zero cost — unlimited test ETH pre-funded</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

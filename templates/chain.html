@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blockchain Viewer | SecureVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+        body { background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+        .block-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            position: relative;
+        }
+        .block-card.genesis { border-color: #854d0e; }
+        .badge-genesis { background: #431407; color: #fb923c; }
+
+        .connector {
+            width: 2px;
+            height: 28px;
+            background: linear-gradient(to bottom, #334155, #38bdf8);
+            margin: 0 auto;
+        }
+
+        .hash-pill {
+            background: #0f172a;
+            border: 1px solid #1e40af;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: .72rem;
+            word-break: break-all;
+            padding: 6px 10px;
+            color: #93c5fd;
+        }
+        .hash-pill.prev { border-color: #334155; color: #94a3b8; }
+
+        .chain-status-ok   { background: #14532d; border-color: #16a34a; color: #86efac; }
+        .chain-status-bad  { background: #7f1d1d; border-color: #dc2626; color: #fca5a5; }
+        .chain-status {
+            border-radius: 10px;
+            border: 1px solid;
+            padding: .75rem 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 600;
+        }
+        th { color: #64748b; font-size: .75rem; font-weight: 500; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark" style="background:#0f1117; border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-shield-lock-fill me-2" style="color:#38bdf8;"></i>Secure<span style="color:#38bdf8;">Vault</span>
+        </a>
+        <div class="d-flex gap-3">
+            <a class="nav-link text-secondary" href="/"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="nav-link text-secondary" href="/download"><i class="bi bi-download me-1"></i>Download</a>
+            <a class="nav-link text-secondary" href="/verify"><i class="bi bi-patch-check me-1"></i>Verify</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Header -->
+            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-3">
+                <div>
+                    <h3 class="fw-bold mb-0">
+                        <i class="bi bi-link-45deg me-2" style="color:#38bdf8;"></i>Blockchain Ledger
+                    </h3>
+                    <p class="text-secondary small mb-0">
+                        {{ blocks | length }} block(s) &mdash; immutable record of all uploaded files
+                    </p>
+                </div>
+                <div class="chain-status {% if chain_valid %}chain-status-ok{% else %}chain-status-bad{% endif %}">
+                    {% if chain_valid %}
+                        <i class="bi bi-shield-check-fill"></i> Chain Valid
+                    {% else %}
+                        <i class="bi bi-shield-exclamation-fill"></i> Chain Compromised!
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr style="border-color:#1e293b;" class="mb-4" />
+
+            <!-- Blocks -->
+            {% for block in blocks %}
+            <div class="block-card p-4 {% if block.index == 0 %}genesis{% endif %} mb-0">
+
+                <!-- Block header -->
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                         style="width:42px;height:42px;background:{% if block.index==0 %}#431407{% else %}#1e3a5f{% endif %}; flex-shrink:0;">
+                        #{{ block.index }}
+                    </div>
+                    <div>
+                        {% if block.index == 0 %}
+                            <span class="badge badge-genesis rounded-pill px-3">Genesis Block</span>
+                        {% else %}
+                            <strong style="color:#38bdf8;">{{ block.file_name }}</strong>
+                        {% endif %}
+                        {% if block.timestamp > 0 %}
+                            <br><small class="text-secondary">{{ block.timestamp | round(2) }}</small>
+                        {% endif %}
+                    </div>
+                    <span class="ms-auto badge bg-secondary rounded-pill">Block {{ block.index }}</span>
+                </div>
+
+                <!-- Block details table -->
+                <table class="table table-dark table-sm mb-0" style="font-size:.82rem;">
+                    <tbody>
+                        {% if block.index > 0 %}
+                        <tr>
+                            <th style="width:28%;">File</th>
+                            <td><code>{{ block.file_name }}</code></td>
+                        </tr>
+                        <tr>
+                            <th style="vertical-align:top;">File SHA-256</th>
+                            <td><div class="hash-pill">{{ block.file_hash }}</div></td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th style="vertical-align:top;">Prev Hash</th>
+                            <td><div class="hash-pill prev">{{ block.previous_hash }}</div></td>
+                        </tr>
+                        <tr>
+                            <th style="vertical-align:top;">Block Hash</th>
+                            <td><div class="hash-pill">{{ block.hash }}</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not loop.last %}
+            <div class="connector"></div>
+            {% endif %}
+            {% endfor %}
+
+            <div class="mt-4 d-flex gap-3 flex-wrap">
+                <a href="/" class="btn btn-outline-info">
+                    <i class="bi bi-cloud-upload me-2"></i>Upload File
+                </a>
+                <a href="/download" class="btn btn-outline-light">
+                    <i class="bi bi-download me-2"></i>Download Files
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Result | SecureVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+        body { background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+        .card-dark {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+        }
+        .hash-box {
+            background: #0f172a;
+            border: 1px solid #1e40af;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: .8rem;
+            word-break: break-all;
+            padding: 12px 16px;
+            color: #93c5fd;
+        }
+        .block-table th { color: #94a3b8; font-weight: 500; font-size: .8rem; text-transform: uppercase; }
+        .block-table td { font-size: .85rem; }
+        .success-icon { font-size: 4rem; color: #22c55e; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark" style="background:#0f1117; border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-shield-lock-fill me-2" style="color:#38bdf8;"></i>Secure<span style="color:#38bdf8;">Vault</span>
+        </a>
+        <div class="d-flex gap-3">
+            <a class="nav-link text-secondary" href="/"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="nav-link text-secondary" href="/download"><i class="bi bi-download me-1"></i>Download</a>
+            <a class="nav-link text-secondary" href="/chain"><i class="bi bi-link-45deg me-1"></i>Blockchain</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            {% if success %}
+            <!-- ── Success Card ──────────────────────────────────────────── -->
+            <div class="card-dark p-4 p-md-5 text-center mb-4">
+                <div class="success-icon mb-3"><i class="bi bi-check-circle-fill"></i></div>
+                <h3 class="fw-bold mb-1">File Uploaded Successfully!</h3>
+                <p class="text-secondary">Your file has been encrypted and anchored to the blockchain.</p>
+
+                <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                    <span class="badge bg-success bg-opacity-20 text-success px-3 py-2 rounded-pill">
+                        <i class="bi bi-lock-fill me-1"></i>AES-256 Encrypted
+                    </span>
+                    <span class="badge bg-primary bg-opacity-20 text-info px-3 py-2 rounded-pill">
+                        <i class="bi bi-link-45deg me-1"></i>Blockchain Recorded
+                    </span>
+                    <span class="badge bg-warning bg-opacity-20 text-warning px-3 py-2 rounded-pill">
+                        <i class="bi bi-fingerprint me-1"></i>SHA-256 Hashed
+                    </span>
+                </div>
+            </div>
+
+            <!-- ── File Details ──────────────────────────────────────────── -->
+            <div class="card-dark p-4 mb-4">
+                <h5 class="fw-semibold mb-3"><i class="bi bi-file-earmark-lock2 me-2 text-info"></i>File Details</h5>
+                <table class="table table-dark block-table mb-0">
+                    <tbody>
+                        <tr>
+                            <th style="width:35%;">File Name</th>
+                            <td><code>{{ filename }}</code></td>
+                        </tr>
+                        <tr>
+                            <th>Encrypted As</th>
+                            <td><code>{{ filename }}.enc</code></td>
+                        </tr>
+                        <tr>
+                            <th>SHA-256 Hash</th>
+                            <td>
+                                <div class="hash-box">{{ file_hash }}</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── Blockchain Block ──────────────────────────────────────── -->
+            <div class="card-dark p-4 mb-4">
+                <h5 class="fw-semibold mb-3"><i class="bi bi-boxes me-2 text-purple"></i>Blockchain Block #{{ block.index }}</h5>
+                <table class="table table-dark block-table mb-0">
+                    <tbody>
+                        <tr><th>Index</th>       <td>{{ block.index }}</td></tr>
+                        <tr>
+                            <th>Timestamp</th>
+                            <td>{{ block.timestamp | round(3) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Previous Hash</th>
+                            <td><div class="hash-box">{{ block.previous_hash }}</div></td>
+                        </tr>
+                        <tr>
+                            <th>Block Hash</th>
+                            <td><div class="hash-box">{{ block.hash }}</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="/download" class="btn btn-outline-info">
+                    <i class="bi bi-download me-2"></i>Download Files
+                </a>
+                <a href="/chain" class="btn btn-outline-secondary">
+                    <i class="bi bi-link-45deg me-2"></i>View Blockchain
+                </a>
+                <a href="/" class="btn btn-outline-light">
+                    <i class="bi bi-cloud-upload me-2"></i>Upload Another
+                </a>
+            </div>
+
+            {% else %}
+            <!-- ── Error Card ────────────────────────────────────────────── -->
+            <div class="card-dark p-5 text-center">
+                <div style="font-size:4rem; color:#ef4444;" class="mb-3">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Upload Failed</h3>
+                <p class="text-secondary">An error occurred during upload. Please try again.</p>
+                <a href="/" class="btn btn-outline-light mt-2">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Home
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
