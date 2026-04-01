@@ -201,6 +201,13 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
+# Project specific
+aes.key
+chain.json
+uploads/
+encrypted/
+decrypted/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
